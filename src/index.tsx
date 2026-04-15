@@ -2289,7 +2289,8 @@ function updateCartSidebar() {
   empty.classList.add('hidden')
   footer.classList.remove('hidden')
 
-  itemsList.innerHTML = cart.map(item => '<div class="flex gap-4 p-4 bg-white rounded-xl border border-[#f0e8d8]">' +
+  itemsList.innerHTML = cart.map(item => (
+    '<div class="flex gap-4 p-4 bg-white rounded-xl border border-[#f0e8d8]">' +
     '<img src="' + item.image + '" alt="' + item.name + '" class="w-16 h-16 object-cover rounded-lg">' +
     '<div class="flex-1">' +
       '<h4 class="font-medium text-gray-800 text-sm line-clamp-2">' + item.name + '</h4>' +
@@ -2303,7 +2304,8 @@ function updateCartSidebar() {
         '<button onclick="removeFromCart(\'' + item.id + '\')" class="text-red-500 text-xs hover:text-red-700">Remove</button>' +
       '</div>' +
     '</div>' +
-  '</div>').join('')
+  '</div>'
+  )).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
