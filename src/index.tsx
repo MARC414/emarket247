@@ -2227,10 +2227,7 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container')
   const toast = document.createElement('div')
   toast.className = 'toast'
-  toast.innerHTML = \`
-    <i class="fas fa-\${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} text-lg text-[#c9a84c]"></i>
-    <span>\${message}</span>
-  \`
+  toast.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + ' text-lg text-[#c9a84c]"></i><span>' + message + '</span>'
   container.appendChild(toast)
   setTimeout(() => toast.remove(), 3000)
 }
@@ -2283,23 +2280,21 @@ function updateCartSidebar() {
   empty.classList.add('hidden')
   footer.classList.remove('hidden')
 
-  itemsList.innerHTML = cart.map(item => \`
-    <div class="flex gap-4 p-4 bg-white rounded-xl border border-[#f0e8d8]">
-      <img src="\${item.image}" alt="\${item.name}" class="w-16 h-16 object-cover rounded-lg">
-      <div class="flex-1">
-        <h4 class="font-medium text-gray-800 text-sm line-clamp-2">\${item.name}</h4>
-        <p class="text-[#c9a84c] font-semibold text-sm">৳\${item.price.toLocaleString()}</p>
-        <div class="flex items-center justify-between mt-2">
-          <div class="flex items-center gap-2">
-            <button onclick="updateCartQuantity('\${item.id}', -1)" class="w-6 h-6 flex items-center justify-center rounded bg-[#f5ede0] text-xs">-</button>
-            <span class="text-sm">\${item.quantity}</span>
-            <button onclick="updateCartQuantity('\${item.id}', 1)" class="w-6 h-6 flex items-center justify-center rounded bg-[#f5ede0] text-xs">+</button>
-          </div>
-          <button onclick="removeFromCart('\${item.id}')" class="text-red-500 text-xs hover:text-red-700">Remove</button>
-        </div>
-      </div>
-    </div>
-  \`).join('')
+  itemsList.innerHTML = cart.map(item => '<div class="flex gap-4 p-4 bg-white rounded-xl border border-[#f0e8d8]">' +
+    '<img src="' + item.image + '" alt="' + item.name + '" class="w-16 h-16 object-cover rounded-lg">' +
+    '<div class="flex-1">' +
+      '<h4 class="font-medium text-gray-800 text-sm line-clamp-2">' + item.name + '</h4>' +
+      '<p class="text-[#c9a84c] font-semibold text-sm">৳' + item.price.toLocaleString() + '</p>' +
+      '<div class="flex items-center justify-between mt-2">' +
+        '<div class="flex items-center gap-2">' +
+          '<button onclick="updateCartQuantity(\'' + item.id + '\', -1)" class="w-6 h-6 flex items-center justify-center rounded bg-[#f5ede0] text-xs">-</button>' +
+          '<span class="text-sm">' + item.quantity + '</span>' +
+          '<button onclick="updateCartQuantity(\'' + item.id + '\', 1)" class="w-6 h-6 flex items-center justify-center rounded bg-[#f5ede0] text-xs">+</button>' +
+        '</div>' +
+        '<button onclick="removeFromCart(\'' + item.id + '\')" class="text-red-500 text-xs hover:text-red-700">Remove</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>').join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
@@ -2354,31 +2349,31 @@ function loadCartPage() {
 
   emptyContainer.classList.add('hidden')
 
-  itemsContainer.innerHTML = cart.map(item => \`
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#f0e8d8] flex gap-6 items-start">
-      <a href="/product/${item.id}">
-        <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded-xl flex-shrink-0 hover:opacity-90 transition-opacity">
-      </a>
-      <div class="flex-1 min-w-0">
-        <a href="/product/${item.id}" class="font-serif font-semibold text-gray-800 hover:text-[#c9a84c] transition-colors text-lg leading-snug block mb-2">${item.name}</a>
-        <p class="text-sm text-gray-500 mb-3">${item.material}</p>
-        <div class="flex items-center gap-4 flex-wrap">
-          <div class="flex items-center gap-3 bg-[#f5ede0] rounded-xl p-2">
-            <button onclick="updateCartQuantity('${item.id}', -1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-[#c9a84c] hover:text-white transition-all text-sm font-medium" aria-label="Decrease">−</button>
-            <span class="text-sm font-semibold w-8 text-center">${item.quantity}</span>
-            <button onclick="updateCartQuantity('${item.id}', 1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-[#c9a84c] hover:text-white transition-all text-sm font-medium" aria-label="Increase">+</button>
-          </div>
-          <div class="flex flex-col">
-            <span class="font-serif font-bold text-[#c9a84c] text-xl">৳${(item.price * item.quantity).toLocaleString()}</span>
-            ${item.price < item.originalPrice ? '<span class="text-sm text-gray-400 line-through">৳' + (item.originalPrice * item.quantity).toLocaleString() + '</span>' : ''}
-          </div>
-        </div>
-      </div>
-      <button onclick="removeFromCart('${item.id}')" class="text-gray-400 hover:text-red-500 transition-colors p-2" aria-label="Remove">
-        <i class="fas fa-trash-alt text-sm"></i>
-      </button>
-    </div>
-  \`).join('')
+  itemsContainer.innerHTML = cart.map(function(item) {
+    return '<div class="bg-white rounded-2xl p-6 shadow-sm border border-[#f0e8d8] flex gap-6 items-start">' +
+      '<a href="/product/' + item.id + '">' +
+        '<img src="' + item.image + '" alt="' + item.name + '" class="w-24 h-24 object-cover rounded-xl flex-shrink-0 hover:opacity-90 transition-opacity">' +
+      '</a>' +
+      '<div class="flex-1 min-w-0">' +
+        '<a href="/product/' + item.id + '" class="font-serif font-semibold text-gray-800 hover:text-[#c9a84c] transition-colors text-lg leading-snug block mb-2">' + item.name + '</a>' +
+        '<p class="text-sm text-gray-500 mb-3">' + item.material + '</p>' +
+        '<div class="flex items-center gap-4 flex-wrap">' +
+          '<div class="flex items-center gap-3 bg-[#f5ede0] rounded-xl p-2">' +
+            '<button onclick="updateCartQuantity(\'' + item.id + '\', -1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-[#c9a84c] hover:text-white transition-all text-sm font-medium" aria-label="Decrease">−</button>' +
+            '<span class="text-sm font-semibold w-8 text-center">' + item.quantity + '</span>' +
+            '<button onclick="updateCartQuantity(\'' + item.id + '\', 1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-[#c9a84c] hover:text-white transition-all text-sm font-medium" aria-label="Increase">+</button>' +
+          '</div>' +
+          '<div class="flex flex-col">' +
+            '<span class="font-serif font-bold text-[#c9a84c] text-xl">৳' + (item.price * item.quantity).toLocaleString() + '</span>' +
+            (item.price < item.originalPrice ? '<span class="text-sm text-gray-400 line-through">৳' + (item.originalPrice * item.quantity).toLocaleString() + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button onclick="removeFromCart(\'' + item.id + '\')" class="text-gray-400 hover:text-red-500 transition-colors p-2" aria-label="Remove">' +
+        '<i class="fas fa-trash-alt text-sm"></i>' +
+      '</button>' +
+    '</div>';
+  }).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
@@ -2400,16 +2395,16 @@ function loadCheckoutPage() {
     return
   }
 
-  itemsContainer.innerHTML = cart.map(item => \`
-    <div class="flex gap-4 items-center">
-      <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg">
-      <div class="flex-1">
-        <h4 class="font-medium text-gray-800 text-sm">${item.name}</h4>
-        <p class="text-xs text-gray-500">Qty: ${item.quantity}</p>
-      </div>
-      <span class="font-semibold text-[#c9a84c]">৳${(item.price * item.quantity).toLocaleString()}</span>
-    </div>
-  \`).join('')
+  itemsContainer.innerHTML = cart.map(function(item) {
+    return '<div class="flex gap-4 items-center">' +
+      '<img src="' + item.image + '" alt="' + item.name + '" class="w-12 h-12 object-cover rounded-lg">' +
+      '<div class="flex-1">' +
+        '<h4 class="font-medium text-gray-800 text-sm">' + item.name + '</h4>' +
+        '<p class="text-xs text-gray-500">Qty: ' + item.quantity + '</p>' +
+      '</div>' +
+      '<span class="font-semibold text-[#c9a84c]">৳' + (item.price * item.quantity).toLocaleString() + '</span>' +
+    '</div>';
+  }).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
@@ -2499,38 +2494,38 @@ function performSearchLogic(query) {
   }
   
   noResults.classList.add('hidden')
-  resultsContainer.innerHTML = results.map(product => \`
-    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#f0e8d8] hover:shadow-md transition-shadow">
-      <div class="relative">
-        <a href="/product/${product.id}">
-          <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
-        </a>
-        ${product.badge ? \`<span class="absolute top-3 left-3 bg-[#c9a84c] text-white text-xs px-2 py-1 rounded-full font-medium">${product.badge}</span>\` : ''}
-        <button onclick="toggleWishlist('${product.id}', this)" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-[#c9a84c] hover:text-white transition-all" aria-label="Add to wishlist">
-          <i class="far fa-heart text-sm text-gray-400"></i>
-        </button>
-      </div>
-      <div class="p-4">
-        <a href="/product/${product.id}" class="block">
-          <h3 class="font-serif font-semibold text-gray-800 text-sm mb-1 line-clamp-2 hover:text-[#c9a84c] transition-colors">${product.name}</h3>
-          <p class="text-xs text-gray-500 mb-2">${product.material}</p>
-          <div class="flex items-center gap-2 mb-3">
-            <div class="flex text-yellow-400">
-              ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
-            </div>
-            <span class="text-xs text-gray-500">(${product.reviews})</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="font-serif font-bold text-[#c9a84c] text-lg">৳${product.price.toLocaleString()}</span>
-            ${product.price < product.originalPrice ? \`<span class="text-sm text-gray-400 line-through">৳${product.originalPrice.toLocaleString()}</span>\` : ''}
-          </div>
-        </a>
-        <button onclick="event.preventDefault(); addToCart('${product.id}')" class="w-full btn-gold py-2.5 rounded-xl text-white text-sm font-medium tracking-wide mt-3">
-          Add to Cart
-        </button>
-      </div>
-    </div>
-  \`).join('')
+  resultsContainer.innerHTML = results.map(function(product) {
+    return '<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#f0e8d8] hover:shadow-md transition-shadow">' +
+      '<div class="relative">' +
+        '<a href="/product/' + product.id + '">' +
+          '<img src="' + product.image + '" alt="' + product.name + '" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">' +
+        '</a>' +
+        (product.badge ? '<span class="absolute top-3 left-3 bg-[#c9a84c] text-white text-xs px-2 py-1 rounded-full font-medium">' + product.badge + '</span>' : '') +
+        '<button onclick="toggleWishlist(\'' + product.id + '\', this)" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-[#c9a84c] hover:text-white transition-all" aria-label="Add to wishlist">' +
+          '<i class="far fa-heart text-sm text-gray-400"></i>' +
+        '</button>' +
+      '</div>' +
+      '<div class="p-4">' +
+        '<a href="/product/' + product.id + '" class="block">' +
+          '<h3 class="font-serif font-semibold text-gray-800 text-sm mb-1 line-clamp-2 hover:text-[#c9a84c] transition-colors">' + product.name + '</h3>' +
+          '<p class="text-xs text-gray-500 mb-2">' + product.material + '</p>' +
+          '<div class="flex items-center gap-2 mb-3">' +
+            '<div class="flex text-yellow-400">' +
+              '★'.repeat(Math.floor(product.rating)) + '☆'.repeat(5 - Math.floor(product.rating)) +
+            '</div>' +
+            '<span class="text-xs text-gray-500">(' + product.reviews + ')</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-2">' +
+            '<span class="font-serif font-bold text-[#c9a84c] text-lg">৳' + product.price.toLocaleString() + '</span>' +
+            (product.price < product.originalPrice ? '<span class="text-sm text-gray-400 line-through">৳' + product.originalPrice.toLocaleString() + '</span>' : '') +
+          '</div>' +
+        '</a>' +
+        '<button onclick="event.preventDefault(); addToCart(\'' + product.id + '\')" class="w-full btn-gold py-2.5 rounded-xl text-white text-sm font-medium tracking-wide mt-3">' +
+          'Add to Cart' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }).join('')
 }
 `
 }
