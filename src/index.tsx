@@ -2378,7 +2378,7 @@ function loadCartPage() {
         <i class="fas fa-trash-alt text-sm"></i>
       </button>
     </div>
-  \\`).join('')
+  \`).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
@@ -2409,7 +2409,7 @@ function loadCheckoutPage() {
       </div>
       <span class="font-semibold text-[#c9a84c]">৳${(item.price * item.quantity).toLocaleString()}</span>
     </div>
-  \\`).join('')
+  \`).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
@@ -2499,13 +2499,13 @@ function performSearchLogic(query) {
   }
   
   noResults.classList.add('hidden')
-  resultsContainer.innerHTML = results.map(product => `
+  resultsContainer.innerHTML = results.map(product => \`
     <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#f0e8d8] hover:shadow-md transition-shadow">
       <div class="relative">
         <a href="/product/${product.id}">
           <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
         </a>
-        ${product.badge ? `<span class="absolute top-3 left-3 bg-[#c9a84c] text-white text-xs px-2 py-1 rounded-full font-medium">${product.badge}</span>` : ''}
+        ${product.badge ? \`<span class="absolute top-3 left-3 bg-[#c9a84c] text-white text-xs px-2 py-1 rounded-full font-medium">${product.badge}</span>\` : ''}
         <button onclick="toggleWishlist('${product.id}', this)" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-[#c9a84c] hover:text-white transition-all" aria-label="Add to wishlist">
           <i class="far fa-heart text-sm text-gray-400"></i>
         </button>
@@ -2522,7 +2522,7 @@ function performSearchLogic(query) {
           </div>
           <div class="flex items-center gap-2">
             <span class="font-serif font-bold text-[#c9a84c] text-lg">৳${product.price.toLocaleString()}</span>
-            ${product.price < product.originalPrice ? `<span class="text-sm text-gray-400 line-through">৳${product.originalPrice.toLocaleString()}</span>` : ''}
+            ${product.price < product.originalPrice ? \`<span class="text-sm text-gray-400 line-through">৳${product.originalPrice.toLocaleString()}</span>\` : ''}
           </div>
         </a>
         <button onclick="event.preventDefault(); addToCart('${product.id}')" class="w-full btn-gold py-2.5 rounded-xl text-white text-sm font-medium tracking-wide mt-3">
@@ -2530,7 +2530,7 @@ function performSearchLogic(query) {
         </button>
       </div>
     </div>
-  `).join('')
+  \`).join('')
 }
 `
 }
