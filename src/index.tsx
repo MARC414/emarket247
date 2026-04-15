@@ -2378,7 +2378,7 @@ function loadCartPage() {
         <i class="fas fa-trash-alt text-sm"></i>
       </button>
     </div>
-  `).join('')
+  \\`).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
@@ -2409,7 +2409,7 @@ function loadCheckoutPage() {
       </div>
       <span class="font-semibold text-[#c9a84c]">৳${(item.price * item.quantity).toLocaleString()}</span>
     </div>
-  `).join('')
+  \\`).join('')
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const delivery = subtotal >= 1500 ? 0 : 100
