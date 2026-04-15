@@ -2167,6 +2167,15 @@ function addToCart(productId, quantity = 1) {
   updateCartCount()
   showToast('Added to cart!', 'success')
   updateCartSidebar()
+  
+  // Show cart sidebar if it's hidden
+  const cartSidebar = document.getElementById('cart-sidebar')
+  const cartOverlay = document.getElementById('cart-overlay')
+  if (cartSidebar && cartOverlay && cartSidebar.classList.contains('translate-x-full')) {
+    cartOverlay.classList.remove('hidden')
+    cartSidebar.classList.remove('translate-x-full')
+  }
+  
   if (window.location.pathname === '/cart') {
     loadCartPage()
   }
