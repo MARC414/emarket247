@@ -2370,7 +2370,7 @@ function loadCartPage() {
           </div>
           <div class="flex flex-col">
             <span class="font-serif font-bold text-[#c9a84c] text-xl">৳${(item.price * item.quantity).toLocaleString()}</span>
-            ${item.price < item.originalPrice ? `<span class="text-sm text-gray-400 line-through">৳${(item.originalPrice * item.quantity).toLocaleString()}</span>` : ''}
+            ${item.price < item.originalPrice ? '<span class="text-sm text-gray-400 line-through">৳' + (item.originalPrice * item.quantity).toLocaleString() + '</span>' : ''}
           </div>
         </div>
       </div>
