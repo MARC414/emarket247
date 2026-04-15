@@ -39,9 +39,10 @@ app.get('/order-confirmed', (c) => {
   return c.html(orderConfirmedPage())
 })
 
-// Route: About
-app.get('/about', (c) => {
-  return c.html(aboutPage())
+// Route: Search
+app.get('/search', (c) => {
+  const query = c.req.query('q') || ''
+  return c.html(searchPage(query))
 })
 
 // API: Products JSON
@@ -1946,6 +1947,55 @@ function orderConfirmedPage() {
 }
 
 // ─────────────────────────────────────────────
+// SEARCH PAGE
+// ─────────────────────────────────────────────
+
+function searchPage(query) {
+  return baseHTML(
+    `Search Results for "${query}" | Emarket247 Fine Jewellery`,
+    `Find the perfect jewelry piece. Search results for "${query}". Free delivery across Bangladesh.`,
+    `
+<!-- SEARCH HERO -->
+<section class="bg-gradient-to-r from-[#fdf0e0] to-[#fff8ee] py-10 border-b border-[#f0e8d8]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h1 class="font-serif font-bold text-4xl text-gray-800">Search Results</h1>
+    <p class="text-sm text-gray-500 mt-1">Showing results for "${query}"</p>
+  </div>
+</section>
+
+<!-- SEARCH FORM -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="max-w-2xl mx-auto">
+    <form onsubmit="performSearch(event)" class="flex gap-3">
+      <input type="text" id="search-input" value="${query}" placeholder="Search for jewelry..." class="flex-1 px-4 py-3 rounded-xl border border-[#f0e8d8] focus:outline-none focus:ring-2 focus:ring-[#c9a84c] focus:border-transparent">
+      <button type="submit" class="btn-gold px-8 py-3 rounded-xl text-white font-medium">
+        <i class="fas fa-search mr-2"></i>Search
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- SEARCH RESULTS -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+  <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <!-- populated by JS -->
+  </div>
+  <div id="no-results" class="text-center py-20 hidden">
+    <div class="w-20 h-20 rounded-full bg-[#f5ede0] flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-search text-4xl text-[#c9a84c]"></i>
+    </div>
+    <h2 class="font-serif text-2xl text-gray-800 mb-2">No results found</h2>
+    <p class="text-gray-500 mb-8">Try different keywords or browse our collections</p>
+    <a href="/shop" class="btn-gold px-8 py-3 rounded-full text-white font-medium inline-flex items-center gap-2">
+      <i class="fas fa-gem"></i> Browse All Products
+    </a>
+  </div>
+</div>
+`
+  )
+}
+
+// ─────────────────────────────────────────────
 // ABOUT PAGE
 // ─────────────────────────────────────────────
 
@@ -2060,6 +2110,9 @@ function aboutPage() {
 function scripts() {
   return `
 <script>
+// Product data available to client-side code
+const products = ${JSON.stringify(products)}
+
 // Global cart data
 let cart = JSON.parse(localStorage.getItem('emarket247-cart') || '[]')
 let wishlist = JSON.parse(localStorage.getItem('emarket247-wishlist') || '[]')
@@ -2090,13 +2143,18 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCheckoutPage()
   } else if (window.location.pathname === '/order-confirmed') {
     loadOrderConfirmedPage()
+  } else if (window.location.pathname === '/search') {
+    loadSearchPage()
   }
 })
 
 // Cart functions
 function addToCart(productId, quantity = 1) {
   const product = products.find(p => p.id === productId)
-  if (!product) return
+  if (!product) {
+    console.warn('Product not found for addToCart:', productId)
+    return
+  }
 
   const existing = cart.find(item => item.id === productId)
   if (existing) {
@@ -2109,6 +2167,12 @@ function addToCart(productId, quantity = 1) {
   updateCartCount()
   showToast('Added to cart!', 'success')
   updateCartSidebar()
+  if (window.location.pathname === '/cart') {
+    loadCartPage()
+  }
+  if (window.location.pathname === '/checkout') {
+    loadCheckoutPage()
+  }
 }
 
 function removeFromCart(productId) {
@@ -2117,16 +2181,25 @@ function removeFromCart(productId) {
   updateCartCount()
   showToast('Removed from cart', 'info')
   updateCartSidebar()
+  if (window.location.pathname === '/cart') {
+    loadCartPage()
+  }
 }
 
 function updateCartCount() {
   const count = cart.reduce((sum, item) => sum + item.quantity, 0)
-  document.getElementById('cart-count').textContent = count
+  const cartCountEl = document.getElementById('cart-count')
+  if (cartCountEl) {
+    cartCountEl.textContent = count
+  }
 }
 
 function updateWishlistCount() {
-  document.getElementById('wishlist-count').textContent = wishlist.length
-  document.getElementById('wishlist-count').style.display = wishlist.length > 0 ? 'flex' : 'none'
+  const wishlistCountEl = document.getElementById('wishlist-count')
+  if (wishlistCountEl) {
+    wishlistCountEl.textContent = wishlist.length
+    wishlistCountEl.style.display = wishlist.length > 0 ? 'flex' : 'none'
+  }
 }
 
 function toggleWishlist(productId, btn) {
@@ -2196,6 +2269,10 @@ function updateCartSidebar() {
   const footer = document.getElementById('cart-footer')
   const empty = document.getElementById('cart-empty')
 
+  if (!itemsList || !footer || !empty) {
+    return
+  }
+
   if (cart.length === 0) {
     itemsList.innerHTML = ''
     footer.classList.add('hidden')
@@ -2243,6 +2320,9 @@ function updateCartQuantity(productId, change) {
     } else {
       saveCart()
       updateCartSidebar()
+      if (window.location.pathname === '/cart') {
+        loadCartPage()
+      }
     }
   }
 }
@@ -2257,18 +2337,94 @@ function loadProductPage() {
 }
 
 function loadCartPage() {
-  // Implement cart page functionality
+  const itemsContainer = document.getElementById('cart-items-full')
+  const emptyContainer = document.getElementById('cart-empty-full')
+  const subtotalEl = document.getElementById('cart-subtotal-full')
+  const deliveryEl = document.getElementById('cart-delivery-full')
+  const totalEl = document.getElementById('cart-total-full')
+
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = ''
+    emptyContainer.classList.remove('hidden')
+    subtotalEl.textContent = '৳0'
+    deliveryEl.textContent = 'Free'
+    totalEl.textContent = '৳0'
+    return
+  }
+
+  emptyContainer.classList.add('hidden')
+
+  itemsContainer.innerHTML = cart.map(item => `
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#f0e8d8] flex gap-6 items-start">
+      <a href="/product/${item.id}">
+        <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded-xl flex-shrink-0 hover:opacity-90 transition-opacity">
+      </a>
+      <div class="flex-1 min-w-0">
+        <a href="/product/${item.id}" class="font-serif font-semibold text-gray-800 hover:text-[#c9a84c] transition-colors text-lg leading-snug block mb-2">${item.name}</a>
+        <p class="text-sm text-gray-500 mb-3">${item.material}</p>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-3 bg-[#f5ede0] rounded-xl p-2">
+            <button onclick="updateCartQuantity('${item.id}', -1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-[#c9a84c] hover:text-white transition-all text-sm font-medium" aria-label="Decrease">−</button>
+            <span class="text-sm font-semibold w-8 text-center">${item.quantity}</span>
+            <button onclick="updateCartQuantity('${item.id}', 1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-[#c9a84c] hover:text-white transition-all text-sm font-medium" aria-label="Increase">+</button>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-serif font-bold text-[#c9a84c] text-xl">৳${(item.price * item.quantity).toLocaleString()}</span>
+            ${item.price < item.originalPrice ? `<span class="text-sm text-gray-400 line-through">৳${(item.originalPrice * item.quantity).toLocaleString()}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <button onclick="removeFromCart('${item.id}')" class="text-gray-400 hover:text-red-500 transition-colors p-2" aria-label="Remove">
+        <i class="fas fa-trash-alt text-sm"></i>
+      </button>
+    </div>
+  `).join('')
+
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const delivery = subtotal >= 1500 ? 0 : 100
+  const total = subtotal + delivery
+
+  subtotalEl.textContent = '৳' + subtotal.toLocaleString()
+  deliveryEl.textContent = delivery === 0 ? 'Free' : '৳' + delivery
+  totalEl.textContent = '৳' + total.toLocaleString()
 }
 
 function loadCheckoutPage() {
-  // Implement checkout functionality
+  const itemsContainer = document.getElementById('checkout-items')
+  const subtotalEl = document.getElementById('checkout-subtotal')
+  const deliveryEl = document.getElementById('checkout-delivery')
+  const totalEl = document.getElementById('checkout-total')
+
+  if (cart.length === 0) {
+    window.location = '/cart'
+    return
+  }
+
+  itemsContainer.innerHTML = cart.map(item => `
+    <div class="flex gap-4 items-center">
+      <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg">
+      <div class="flex-1">
+        <h4 class="font-medium text-gray-800 text-sm">${item.name}</h4>
+        <p class="text-xs text-gray-500">Qty: ${item.quantity}</p>
+      </div>
+      <span class="font-semibold text-[#c9a84c]">৳${(item.price * item.quantity).toLocaleString()}</span>
+    </div>
+  `).join('')
+
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const delivery = subtotal >= 1500 ? 0 : 100
+  const total = subtotal + delivery
+
+  subtotalEl.textContent = '৳' + subtotal.toLocaleString()
+  deliveryEl.textContent = delivery === 0 ? 'Free' : '৳' + delivery
+  totalEl.textContent = '৳' + total.toLocaleString()
 }
 
-function loadOrderConfirmedPage() {
-  // Implement order confirmation
+function handleCheckout(event) {
+  event.preventDefault()
+  // Implement checkout logic
+  window.location = '/order-confirmed'
 }
-
-// Utility functions
 function filterProducts(category, btn) {
   // Implement filtering
 }
@@ -2310,7 +2466,72 @@ function handleCheckout(event) {
   // Implement checkout logic
   window.location = '/order-confirmed'
 }
-</script>
+
+function loadSearchPage() {
+  const query = new URLSearchParams(window.location.search).get('q') || ''
+  if (query) {
+    performSearchLogic(query)
+  }
+}
+
+function performSearch(event) {
+  if (event) event.preventDefault()
+  const query = document.getElementById('search-input').value.trim()
+  if (query) {
+    window.location = '/search?q=' + encodeURIComponent(query)
+  }
+}
+
+function performSearchLogic(query) {
+  const results = products.filter(product => 
+    product.name.toLowerCase().includes(query.toLowerCase()) ||
+    product.description.toLowerCase().includes(query.toLowerCase()) ||
+    product.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+  )
+  
+  const resultsContainer = document.getElementById('search-results')
+  const noResults = document.getElementById('no-results')
+  
+  if (results.length === 0) {
+    resultsContainer.innerHTML = ''
+    noResults.classList.remove('hidden')
+    return
+  }
+  
+  noResults.classList.add('hidden')
+  resultsContainer.innerHTML = results.map(product => `
+    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#f0e8d8] hover:shadow-md transition-shadow">
+      <div class="relative">
+        <a href="/product/${product.id}">
+          <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+        </a>
+        ${product.badge ? `<span class="absolute top-3 left-3 bg-[#c9a84c] text-white text-xs px-2 py-1 rounded-full font-medium">${product.badge}</span>` : ''}
+        <button onclick="toggleWishlist('${product.id}', this)" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-[#c9a84c] hover:text-white transition-all" aria-label="Add to wishlist">
+          <i class="far fa-heart text-sm text-gray-400"></i>
+        </button>
+      </div>
+      <div class="p-4">
+        <a href="/product/${product.id}" class="block">
+          <h3 class="font-serif font-semibold text-gray-800 text-sm mb-1 line-clamp-2 hover:text-[#c9a84c] transition-colors">${product.name}</h3>
+          <p class="text-xs text-gray-500 mb-2">${product.material}</p>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="flex text-yellow-400">
+              ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
+            </div>
+            <span class="text-xs text-gray-500">(${product.reviews})</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-serif font-bold text-[#c9a84c] text-lg">৳${product.price.toLocaleString()}</span>
+            ${product.price < product.originalPrice ? `<span class="text-sm text-gray-400 line-through">৳${product.originalPrice.toLocaleString()}</span>` : ''}
+          </div>
+        </a>
+        <button onclick="event.preventDefault(); addToCart('${product.id}')" class="w-full btn-gold py-2.5 rounded-xl text-white text-sm font-medium tracking-wide mt-3">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  `).join('')
+}
 `
 }
 
