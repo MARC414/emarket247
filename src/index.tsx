@@ -2354,7 +2354,7 @@ function loadCartPage() {
 
   emptyContainer.classList.add('hidden')
 
-  itemsContainer.innerHTML = cart.map(item => `
+  itemsContainer.innerHTML = cart.map(item => \`
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#f0e8d8] flex gap-6 items-start">
       <a href="/product/${item.id}">
         <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded-xl flex-shrink-0 hover:opacity-90 transition-opacity">
@@ -2400,7 +2400,7 @@ function loadCheckoutPage() {
     return
   }
 
-  itemsContainer.innerHTML = cart.map(item => `
+  itemsContainer.innerHTML = cart.map(item => \`
     <div class="flex gap-4 items-center">
       <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg">
       <div class="flex-1">
